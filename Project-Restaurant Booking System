@@ -1,0 +1,102 @@
+import java.util.*;
+
+class Booking {
+    String name;
+    int partySize;
+    String time;
+
+    public Booking(String name, int partySize, String time) {
+        this.name = name;
+        this.partySize = partySize;
+        this.time = time;
+    }
+
+    @Override
+    public String toString() {
+        return "Booking{name='" + name + "', partySize=" + partySize + ", time='" + time + "'}";
+    }
+}
+
+class RestaurantBookingSystem {
+    private static Map<String, List<Booking>> bookings = new HashMap<>();
+
+    public static void createBooking(String name, int partySize, String time) {
+        Booking newBooking = new Booking(name, partySize, time);
+        bookings.computeIfAbsent(time, k -> new ArrayList<>()).add(newBooking);
+        System.out.println("Booking created: " + newBooking);
+    }
+
+    public static void viewBookings() {
+        if (bookings.isEmpty()) {
+            System.out.println("There are no bookings.");
+            return;
+        }
+        for (String time : bookings.keySet()) {
+            System.out.println("Bookings for " + time + ":");
+            List<Booking> timeBookings = bookings.get(time);
+            for (Booking booking : timeBookings) {
+                System.out.println(booking);
+            }
+        }
+    }
+
+    public static void cancelBooking(String name, String time) {
+        List<Booking> timeBookings = bookings.get(time);
+        if (timeBookings != null) {
+            timeBookings.removeIf(booking -> booking.name.equals(name));
+            System.out.println("Booking cancelled for " + name + " at " + time);
+            if (timeBookings.isEmpty()) {
+                bookings.remove(time);
+            }
+        } else {
+            System.out.println("No booking found for " + name + " at " + time);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\nRestaurant Booking System:");
+            System.out.println("1. Create a booking");
+            System.out.println("2. View bookings");
+            System.out.println("3. Cancel a booking");
+            System.out.println("4. Exit");
+            System.out.print("Please enter your choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume the newline
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter your name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter party size: ");
+                    int partySize = scanner.nextInt();
+                    scanner.nextLine(); // consume the newline
+                    System.out.print("Enter booking time (e.g., 18:00): ");
+                    String time = scanner.nextLine();
+                    createBooking(name, partySize, time);
+                    break;
+                case 2:
+                    viewBookings();
+                    break;
+                case 3:
+                    System.out.print("Enter your name for cancellation: ");
+                    String cancelName = scanner.nextLine();
+                    System.out.print("Enter booking time for cancellation: ");
+                    String cancelTime = scanner.nextLine();
+                    cancelBooking(cancelName, cancelTime);
+                    break;
+                case 4:
+                    running = false;
+                    System.out.println("Exiting the booking system...");
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+        scanner.close();
+    }
+}
